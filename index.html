@@ -1,547 +1,83 @@
-<!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
+<!doctype html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA fusion — Coach de prompt multi-IA</title>
-    <style>
-        /* (Le CSS reste identique aux versions précédentes) */
-        /* Reset CSS */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Base styles */
-        :root {
-            --gray-900: #121212;
-            --gray-800: #1e1e1e;
-            --gray-700: #2d2d2d;
-            --gray-600: #3d3d3d;
-            --gray-500: #555555;
-            --gray-400: #777777;
-            --gray-300: #999999;
-            --gray-200: #bbbbbb;
-            --gray-100: #dddddd;
-            --gray-50: #f0f0f0;
-            
-            --blue-600: #2563eb;
-            --blue-500: #3b82f6;
-            --blue-400: #60a5fa;
-            --green-600: #16a34a;
-            --yellow-600: #ca8a04;
-            --red-600: #dc2626;
-            --purple-500: #a855f7;
-            
-            --border-radius: 12px;
-            --transition: 0.3s ease;
-        }
-
-        body {
-            background-color: var(--gray-900);
-            color: var(--gray-100);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3, h4 {
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-        }
-
-        h2 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-        }
-
-        h3 {
-            font-size: 1.5rem;
-        }
-
-        p {
-            margin-bottom: 1rem;
-        }
-
-        a {
-            color: var(--blue-400);
-            text-decoration: none;
-        }
-
-        button {
-            cursor: pointer;
-            border: none;
-            outline: none;
-            transition: var(--transition);
-        }
-
-        /* Utility classes */
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .section {
-            padding: 5rem 0;
-            border-bottom: 1px solid var(--gray-700);
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mx-auto {
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .flex {
-            display: flex;
-        }
-
-        .flex-col {
-            flex-direction: column;
-        }
-
-        .justify-center {
-            justify-content: center;
-        }
-
-        .items-center {
-            align-items: center;
-        }
-
-        .grid {
-            display: grid;
-        }
-
-        .gap-6 {
-            gap: 1.5rem;
-        }
-
-        .gap-8 {
-            gap: 2rem;
-        }
-
-        .gap-12 {
-            gap: 3rem;
-        }
-
-        .mt-4 {
-            margin-top: 1rem;
-        }
-
-        .mt-6 {
-            margin-top: 1.5rem;
-        }
-
-        .mt-8 {
-            margin-top: 2rem;
-        }
-
-        .mt-12 {
-            margin-top: 3rem;
-        }
-
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-
-        .mb-6 {
-            margin-bottom: 1.5rem;
-        }
-
-        .mb-8 {
-            margin-bottom: 2rem;
-        }
-
-        .mb-12 {
-            margin-bottom: 3rem;
-        }
-
-        .p-4 {
-            padding: 1rem;
-        }
-
-        .p-6 {
-            padding: 1.5rem;
-        }
-
-        .p-8 {
-            padding: 2rem;
-        }
-
-        .rounded-lg {
-            border-radius: var(--border-radius);
-        }
-
-        .rounded-xl {
-            border-radius: calc(var(--border-radius) * 1.5);
-        }
-
-        .bg-gray-800 {
-            background-color: var(--gray-800);
-        }
-
-        .bg-gray-700 {
-            background-color: var(--gray-700);
-        }
-
-        .bg-gray-600 {
-            background-color: var(--gray-600);
-        }
-
-        .border {
-            border: 1px solid var(--gray-700);
-        }
-
-        .border-gray-600 {
-            border-color: var(--gray-600);
-        }
-
-        /* Animations */
-        @keyframes subtle-glow {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-slow-pulse {
-            animation: subtle-glow 8s ease-in-out infinite;
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 1s ease forwards;
-        }
-
-        @media (prefers-reduced-motion) {
-            .animate-slow-pulse, .animate-fade-in {
-                animation: none;
-            }
-        }
-
-        /* Language toggle */
-        [data-lang="en"] { display: none; }
-        :lang(en) [data-lang="fr"] { display: none; }
-        :lang(en) [data-lang="en"] { display: block; }
-
-        /* Hero section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .hero-title {
-            font-size: 3rem;
-            background: linear-gradient(to right, #22d3ee, #0ea5e9, #6366f1);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            color: var(--gray-300);
-            max-width: 600px;
-            margin-bottom: 2rem;
-        }
-
-        .cta-button {
-            background-color: var(--blue-600);
-            color: white;
-            font-weight: 600;
-            padding: 1rem 2.5rem;
-            border-radius: 100px;
-            font-size: 1.25rem;
-        }
-
-        .cta-button:hover {
-            background-color: var(--blue-500);
-            transform: scale(1.05);
-        }
-
-        /* Process section */
-        .convergence-path {
-            position: relative;
-            text-align: center;
-        }
-
-        .convergence-path::after {
-            content: '➔';
-            position: absolute;
-            right: -2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0.3;
-            font-size: 1.5rem;
-        }
-
-        .convergence-path:last-child::after {
-            content: none;
-        }
-
-        .ai-icon {
-            width: 80px;
-            height: 80px;
-            background-color: var(--gray-700);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 1rem;
-        }
-
-        .synthesis-card {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        }
-
-        .agreement {
-            background-color: rgba(22, 163, 74, 0.15);
-            border: 1px solid rgba(22, 163, 74, 0.3);
-        }
-
-        .complement {
-            background-color: rgba(202, 138, 4, 0.15);
-            border: 1px solid rgba(202, 138, 4, 0.3);
-        }
-
-        .divergence {
-            background-color: rgba(220, 38, 38, 0.15);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-        }
-
-        /* AI Catalogue */
-        .ai-card {
-            transition: var(--transition);
-        }
-
-        .ai-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .ai-strength {
-            background-color: var(--green-600);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 100px;
-            font-size: 0.8rem;
-            margin-right: 0.5rem;
-        }
-
-        /* Prompt Generator */
-        .prompt-panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .panel-input {
-            background-color: var(--gray-700);
-            border: 1px solid var(--gray-600);
-            border-radius: 8px;
-            padding: 0.75rem;
-            color: var(--gray-100);
-            width: 100%;
-            margin-top: 0.5rem;
-        }
-
-        .prompt-display {
-            background-color: var(--gray-800);
-            border: 1px solid var(--gray-600);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            white-space: pre-wrap;
-            font-family: monospace;
-            min-height: 200px;
-        }
-
-        /* FAQ */
-        .faq-item {
-            margin-bottom: 1.5rem;
-        }
-
-        .faq-question {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--blue-400);
-        }
-
-        /* Footer */
-        footer {
-            padding: 3rem 0;
-            text-align: center;
-            color: var(--gray-400);
-        }
-
-        /* Responsive */
-        @media (min-width: 768px) {
-            .grid-cols-2 {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .grid-cols-4 {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            h1 {
-                font-size: 3.5rem;
-            }
-            
-            h2 {
-                font-size: 2.5rem;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .convergence-path::after {
-                content: '↓';
-                right: 50%;
-                top: auto;
-                bottom: -2rem;
-                transform: translateX(50%);
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IAFusion — Maquette V3</title>
+  <link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
-    <!-- Language toggle -->
-    <button aria-label="Switch language" class="fixed top-4 right-4 z-50 text-gray-300 hover:text-white transition" onclick="document.documentElement.lang=document.documentElement.lang==='fr'?'en':'fr'">
-         🌐
-    </button>
+  <header class="hdr">
+    <div class="brand">
+      <img src="assets/img/logo.svg" alt="" class="logo">
+      <h1>IAFusion</h1>
+    </div>
+    <div class="hdr-actions">
+      <button id="btnMemory" class="icon-btn" aria-expanded="false" aria-controls="memoryDrawer" title="Mémoire épinglée">
+        <img src="assets/img/pin.svg" alt="">
+      </button>
+      <button id="btnMic" class="icon-btn" aria-pressed="false" title="Dictée (STT)">
+        <img src="assets/img/mic.svg" alt="">
+      </button>
+      <button id="btnTTS" class="icon-btn" aria-pressed="false" title="Lecture (TTS)">
+        <img src="assets/img/speaker.svg" alt="">
+      </button>
+    </div>
+  </header>
 
-    <!-- Hero Section -->
-    <section class="section hero">
-        <div class="container">
-            <h1 class="hero-title animate-slow-pulse">
-                <span data-lang="fr">IA fusion</span>
-                <span data-lang="en">IA fusion</span>
-            </h1>
-            <p class="hero-subtitle">
-                <span data-lang="fr">Coach de prompt multi-IA</span>
-                <span data-lang="en">Multi-AI prompt coach</span>
-            </p>
-            <p class="text-lg text-gray-300 max-w-xl mx-auto mb-6">
-                <span data-lang="fr">Pose une question, compare 4 IA en parallèle (ChatGPT, Claude, DeepSeek, Gemini) et reçois une réponse de convergence (Accords • Compléments • Divergences) + un plan en 3 étapes.</span>
-                <span data-lang="en">Ask once, compare 4 AIs in parallel, get a convergence answer (Agreements • Complements • Divergences) + a 3-step plan.</span>
-            </p>
-            <button class="cta-button">
-                <span data-lang="fr">Lancer une Convergence</span>
-                <span data-lang="en">Start Convergence</span>
-            </button>
-        </div>
+  <main class="main">
+    <!-- Sélecteur d’IA -->
+    <section class="card">
+      <h2>Sélecteur d’IA <small>(max 4 actives)</small></h2>
+      <div id="iaGrid" class="ia-grid" aria-live="polite"></div>
+      <p class="hint">Astuce : double-clic pour mettre une IA en favorite (sélection par défaut).</p>
     </section>
 
-    <!-- How It Works -->
-    <section class="section">
-        <div class="container">
-            <h2 class="text-center">
-                <span data-lang="fr">Comment ça marche</span>
-                <span data-lang="en">How it works</span>
-            </h2>
-            
-            <div class="grid grid-cols-4 gap-8 items-center mt-12">
-                <div class="convergence-path">
-                    <div class="ai-icon">🤖</div>
-                    <h3>ChatGPT</h3>
-                </div>
-                <div class="convergence-path">
-                    <div class="ai-icon">👤</div>
-                    <h3>Claude</h3>
-                </div>
-                <div class="convergence-path">
-                    <div class="ai-icon">🔍</div>
-                    <h3>DeepSeek</h3>
-                </div>
-                <div class="convergence-path">
-                    <div class="ai-icon">🌟</div>
-                    <h3>Gemini</h3>
-                </div>
-            </div>
-            
-            <div class="mt-12">
-                <div class="bg-gray-800 p-8 rounded-xl border border-gray-600">
-                    <div class="grid synthesis-card gap-6">
-                        <div class="agreement p-6 rounded-lg">
-                            <h4 class="mb-4">Accords (≥0,70)</h4>
-                            <p>Points communs stables sur lesquels les IA s'accordent.</p>
-                        </div>
-                        <div class="complement p-6 rounded-lg">
-                            <h4 class="mb-4">Compléments (0,30–0,70)</h4>
-                            <p>Ajouts utiles sans contradiction entre les différentes IA.</p>
-                        </div>
-                        <div class="divergence p-6 rounded-lg">
-                            <h4 class="mb-4">Divergences (<0,30)</h4>
-                            <p>Alerte à vérifier : désaccords significatifs entre les IA.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-8">
-                        <h4 class="mb-4">
-                            <span data-lang="fr">Plan en 3 étapes</span>
-                            <span data-lang="en">3-Step Plan</span>
-                        </h4>
-                        <ol class="ml-6">
-                            <li class="mb-2">1. <span data-lang="fr">Prioriser les solutions communes</span><span data-lang="en">Prioritize common solutions</span></li>
-                            <li class="mb-2">2. <span data-lang="fr">Intégrer les compléments pertinents</span><span data-lang="en">Integrate relevant complements</span></li>
-                            <li class="mb-2">3. <span data-lang="fr">Tester les solutions divergentes</span><span data-lang="en">Test divergent solutions</span></li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Mémoire épinglée (volet) -->
+    <aside id="memoryDrawer" class="drawer" hidden>
+      <header>
+        <h3>Mémoire épinglée</h3>
+        <button id="btnCloseMem" class="close">×</button>
+      </header>
+      <div class="drawer-body">
+        <div class="mem-block"><strong>Objectif</strong><p>Question→Réponses IA→Synthèse (A/C/D)→Plan(3).</p></div>
+        <div class="mem-block"><strong>Contraintes</strong><p>Cap parallèle 4 • Réponses courtes • Local-first.</p></div>
+        <div class="mem-block"><strong>Prompts clés</strong><p>(à compléter)</p></div>
+      </div>
+    </aside>
 
-    <!-- AI Catalogue -->
-    <section class="section">
-        <div class="container">
-            <h2 class="text-center">
-                <span data-lang="fr">Catalogue des IA (V1)</span>
-                <span data-lang="en">AI Catalog (V1)</span>
-            </h2>
-            
-            <div class="grid grid-cols-2 gap-6 mt-12">
-                <div class="ai-card bg-gray-800 p-6 rounded-xl border border-gray-600">
-                    <div class="flex items-center mb-4">
-                        <div class="ai-icon">🤖</div>
-                        <h3 class="ml-4">ChatGPT</h3>
-                    </div>
-                    <p><span data-lang="fr">Polyvalent, rapide ; lisse le style.</span><span data-lang="en">Versatile, fast; smooths out the style.</span></p>
-                </div>
-                
-                <div class="ai-card bg-gray-800 p-6 rounded-xl border border-gray-600">
-                    <div class="flex items-center mb-4">
-                        <div class="ai-icon">👤</div>
-                        <h3 class="ml-4">Claude</h3>
-                    </div>
-                    <p><span data-lang="fr">Très bon en analyse longue/structuration.</span><span data-lang="en">Excellent at long analysis and structuring.</span></p>
-                </div>
-                
-                <div class="ai-card bg-gray-800 p-6 rounded-xl border border-gray-600">
-                    <div class="flex items-center mb-4">
-                        <div class="ai-icon">🔍</div>
-                        <h3 class="ml-4">DeepSeek</h3>
-                    </div>
-                    <p><span data-lang="fr">Logique/raisonnement, utile pour critique.</span><span data-lang="en">Logic/reasoning, useful for critical analysis.</span></p>
-                </div>
-                
-                <div class="ai-card bg-gray-800 p-6
+    <!-- Carte Synthèse -->
+    <section class="card">
+      <h2>Carte Synthèse</h2>
+      <div class="syn-grid">
+        <div class="syn-box">
+          <h3>Accords</h3>
+          <div id="s-accords" class="syn-body"></div>
+        </div>
+        <div class="syn-box">
+          <h3>Compléments</h3>
+          <div id="s-complements" class="syn-body"></div>
+        </div>
+        <div class="syn-box warn">
+          <h3>Divergences</h3>
+          <div id="s-divergences" class="syn-body"></div>
+        </div>
+        <div class="syn-box plan">
+          <h3>Plan 3 étapes</h3>
+          <ol id="s-plan" class="syn-body"></ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ftr">
+    <nav class="tabs">
+      <button class="tab disabled" title="Lecture seule">Marchés</button>
+      <button class="tab disabled" title="Lecture seule">Presse</button>
+    </nav>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </footer>
+
+  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
